@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VELORI SHOP</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceef1;--ink:#12161c;--mute:#5c6470;--card:#fff;--line:#d3d8df;--acc:#2f5bff;--accink:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#10141a;--ink:#eef0f3;--mute:#9aa3b0;--card:#1a2029;--line:#2a323d;--acc:#6c8cff;--accink:#0b1020;color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Manrope,system-ui,sans-serif}
+h1,h2,.logo{font-family:Unbounded,Arial Black,sans-serif;font-weight:700;letter-spacing:-.02em}
+button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;border-bottom:1px solid var(--line)}
+.logo{font-size:20px}
+.cartbtn{background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600}
+.hero{padding:7vh 5vw 4vh;max-width:1200px}
+.hero h1{font-size:clamp(30px,8vw,76px);line-height:1;margin:0 0 16px}
+.hero p{max-width:46ch;color:var(--mute);margin:0 0 20px}
+.cta{background:var(--acc);color:var(--accink);padding:13px 22px;border-radius:10px;font-weight:600;display:inline-block;text-decoration:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 5vw 18px}
+.chip{padding:8px 16px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding:0 5vw 50px}
+.card{background:var(--card);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.pic{aspect-ratio:4/5;background:#9993}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.info{padding:12px;display:flex;flex-direction:column;gap:9px;flex:1}
+.info h2{font:600 15px/1.3 Manrope,sans-serif;margin:0;letter-spacing:0}
+.price{font-weight:600}
+.row2{display:flex;gap:6px;flex-wrap:wrap}
+.opt{padding:5px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px}
+.opt[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--accink)}
+.add{margin-top:auto;background:var(--ink);color:var(--bg);padding:11px;border-radius:8px;font-weight:600}
+aside{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);background:var(--card);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .25s;display:flex;flex-direction:column;padding:calc(16px + env(safe-area-inset-top,0px)) 18px calc(16px + env(safe-area-inset-bottom,0px));z-index:20}
+aside.open{transform:none}
+.items{flex:1;overflow:auto}
+.row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row small{color:var(--mute)}
+.qty{display:flex;align-items:center;gap:8px;margin-top:6px}
+.qty button{width:28px;height:28px;border:1px solid var(--line);border-radius:6px}
+form{display:grid;gap:8px;padding-top:12px}
+input,textarea{padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;width:100%}
+input[readonly]{color:var(--mute)}
+.send{background:var(--acc);color:var(--accink);padding:13px;border-radius:8px;font-weight:600}
+.send:disabled{opacity:.4;cursor:not-allowed}
+.err{margin:6px 0;font-size:14px;color:#d33}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:40}
+.modal[hidden]{display:none}
+.modal .box{background:var(--card);border-radius:14px;padding:22px;width:min(420px,100%);display:grid;gap:12px;max-height:85vh;overflow-y:auto}
+.modal h2{margin:0;font-size:20px}
+.modal p{margin:0;color:var(--mute);font-size:14px}
+.modal ol{margin:0;padding-left:20px;color:var(--mute);font-size:14px}
+.hbtns{display:flex;gap:8px;align-items:center}
+.regbtn{border:1px solid var(--line);background:var(--card);padding:10px 14px;border-radius:999px;font-weight:600;max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Стили для профиля и карточек заказов */
+.user-card{background:var(--bg);padding:12px;border-radius:10px;display:flex;flex-direction:column;gap:4px}
+.user-card strong{font-size:16px}
+.user-card span{color:var(--mute);font-size:14px}
+.order-card{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.order-head{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.badge{padding:3px 8px;border-radius:6px;font-size:12px;background:var(--line);color:var(--ink)}
+.badge.success{background:#10b98122;color:#10b981}
+.badge.pending{background:#f59e0b22;color:#f59e0b}
+.logout-btn{background:#ef444422;color:#ef4444;padding:10px;border-radius:8px;font-weight:600;margin-top:10px}
+
+footer{padding:26px 5vw;color:var(--mute);border-top:1px solid var(--line);font-size:14px;text-align:center}
+@media (prefers-reduced-motion:reduce){aside{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="logo">VELORI SHOP</div><div class="hbtns"><button class="regbtn" id="regbtn" type="button">Войти</button><button class="cartbtn" id="open">Корзина · <span id="cnt">0</span></button></div></header>
+<section class="hero"><h1>Одежда на каждый день</h1><p>Выберите цвет и размер, добавьте в корзину — мы свяжемся в Telegram и подтвердим заказ.</p><a class="cta" href="#chips">Смотреть каталог</a></section>
+<div class="chips" id="chips"></div>
+<main class="grid" id="grid"></main>
+<footer>VELORI SHOP · Доставка по Ташкенту · Оплата 50% · Telegram: @Kiyomi_g</footer>
+
+<aside id="cart" aria-label="Корзина">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0;font-size:20px">Корзина</h2><button id="close" aria-label="Закрыть" style="font-size:20px">✕</button></div>
+<div class="items" id="items"></div>
+<div style="display:flex;justify-content:space-between;font-weight:600;padding-top:10px"><span>Итого</span><span id="sum">0</span></div>
+<form id="f">
+<input id="nm" placeholder="Telegram (подставится после входа)" readonly>
+<input id="ph" placeholder="Телефон (подставится после входа)" readonly>
+<button class="send" id="go" disabled>Оформить заказ</button>
+<div id="fb"></div>
+</form>
+</aside>
+
+<!-- Модалка авторизации -->
+<div class="modal" id="reg" hidden role="dialog" aria-modal="true" aria-labelledby="regt">
+<div class="box">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2 id="regt">Вход</h2><button id="regclose" type="button" aria-label="Закрыть" style="font-size:20px">✕</button></div>
+<p>Чтобы оформлять заказы, подтвердите аккаунт через нашего бота в Telegram. Бот сам получает ваш ник и номер, вписать чужие или выдуманные нельзя.</p>
+<button class="send" id="regstart" type="button">Подтвердить через Telegram</button>
+<div id="regwait" hidden style="display:grid;gap:10px">
+<ol><li>Откройте бота и нажмите «Start».</li><li>Нажмите кнопку «Поделиться номером».</li><li>Вернитесь сюда, вход выполнится сам.</li></ol>
+<a class="cta" id="reglink" target="_blank" rel="noopener" style="text-align:center">Открыть бота</a>
+<p>Ждём подтверждения…</p>
+</div>
+<div class="err" id="regfb"></div>
+</div>
+</div>
+
+<!-- Модалка профиля -->
+<div class="modal" id="profileModal" hidden role="dialog" aria-modal="true">
+<div class="box">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2>Профиль</h2><button id="profClose" type="button" style="font-size:20px">✕</button></div>
+<div class="user-card">
+<strong id="profTg">@username</strong>
+<span id="profPh">+998000000000</span>
+</div>
+<h3 style="margin:10px 0 0;font-size:16px">Мои заказы</h3>
+<div id="ordersList" style="display:grid;gap:10px">
+<p style="color:var(--mute)">Загрузка заказов…</p>
+</div>
+<button class="logout-btn" id="logoutBtn" type="button">Выйти из аккаунта</button>
+</div>
+</div>
+
+<script>
+const TG_USER="Kiyomi_g", tg=window.Telegram&&Telegram.WebApp;
+if(tg){try{tg.ready();tg.expand()}catch(e){}}
+const $=id=>document.getElementById(id), fmt=n=>n.toLocaleString("ru-RU")+" сум";
+const NOIMG="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500'%3E%3Crect width='100%25' height='100%25' fill='%23888'/%3E%3C/svg%3E";
+
+const P=[
+{id:1,n:"Поло в полоску",c:"Верх",p:249000,s:["S","M","L","XL"],v:[["Бордовый/синий","polo-burgundy-navy"],["Бордовый/чёрный","polo-burgundy-black"],["Бордовый/чёрный, короткий рукав","polo-burgundy-black-short"],["Фиолетовый/чёрный","polo-purple-black"],["Белый/чёрный","polo-white-black"],["Синий/чёрный","polo-navy-black"]]},
+{id:2,n:"Джемпер в полоску с воротником",c:"Верх",p:349000,s:["M","L","XL"],v:[["Чёрный/серый","knit-polo"]]},
+{id:3,n:"Водолазка",c:"Верх",p:359000,s:["M","L","XL"],v:[["Кремовый","turtleneck-cream"],["Чёрный","turtleneck-black"]]},
+{id:4,n:"Свитшот серый с вышивкой",c:"Худи и свитшоты",p:289000,s:["M","L","XL"],v:[["Серый","sweatshirt-grey"]]},
+{id:5,n:"Худи на молнии",c:"Худи и свитшоты",p:319000,s:["M","L","XL"],v:[["Бордовый","hoodie-red"]]},
+{id:6,n:"Спортивный свитшот-ветровка",c:"Худи и свитшоты",p:319000,s:["M","L","XL"],v:[["Тёмно-серый","windbreaker-darkgrey"],["Серый","windbreaker-grey"],["Бежевый","windbreaker-beige"],["Оливковый","windbreaker-olive"]]},
+{id:7,n:"Лонгслив вафельный",c:"Верх",p:199000,s:["S","M","L"],v:[["Белый","longsleeve-white"]]},
+{id:8,n:"Штаны с контрастной полосой",c:"Брюки",p:279000,s:["M","L","XL"],v:[["Тёмно-синий","pants-navy"],["Чёрный","pants-black"],["Чёрный/красная полоса","pants-blackred"],["Серый","pants-grey"],["Зелёный","pants-green"],["Бирюзовый","pants-teal"]]},
+{id:9,n:"Куртка спортивная",c:"Куртки",p:359000,s:["M","L","XL"],v:[["Чёрный/серый","track-jacket"]]},
+{id:10,n:"Куртка утеплённая с полосой",c:"Куртки",p:599000,s:["M","L","XL"],v:[["Чёрный/фиолетовый","puffer-black"],["Серый/синий","puffer-grey"]]},
+{id:11,n:"Очки с прозрачной оправой",c:"Аксессуары",p:149000,s:["One"],v:[["Прозрачный","glasses"]]}];
+
+let cart=[],cat="Все",sel={},user=null,pending=null,poll=null;
+try{cart=JSON.parse(localStorage.getItem("velori_cart")||"[]")}catch(e){}
+try{user=JSON.parse(localStorage.getItem("velori_user")||"null")}catch(e){}
+if(user&&!user.session)user=null;
+
+const save=()=>{try{localStorage.setItem("velori_cart",JSON.stringify(cart))}catch(e){}};
+const saveUser=()=>{try{user?localStorage.setItem("velori_user",JSON.stringify(user)):localStorage.removeItem("velori_user")}catch(e){}};
+const authH=()=>user&&user.session?{"Authorization":"Bearer "+user.session}:{};
+
+P.forEach(p=>sel[p.id]={c:0,z:p.s.length===1?p.s[0]:null});
+const img=(p,c)=>"images/"+p.v[c][1]+".jpg";
+
+function chips(){const cs=["Все",...new Set(P.map(p=>p.c))];$("chips").innerHTML=cs.map(c=>`<button class="chip" aria-pressed="${c===cat}" onclick="setCat('${c}')">${c}</button>`).join("")}
+function setCat(c){cat=c;chips();grid()}
+function grid(){
+ $("grid").innerHTML=P.filter(p=>cat==="Все"||p.c===cat).map(p=>`<article class="card" id="c${p.id}"><div class="pic"><img src="${img(p,0)}" alt="${p.n}" loading="lazy" onerror="this.onerror=null;this.src=NOIMG"></div>
+ <div class="info"><h2>${p.n}</h2><div class="price">${fmt(p.p)}</div>
+ ${p.v.length>1?`<div class="row2">${p.v.map((v,i)=>`<button class="opt" data-k="c" data-i="${i}" aria-pressed="${i===0}" onclick="pick(${p.id},'c',${i},this)">${v[0]}</button>`).join("")}</div>`:`<small style="color:var(--mute)">${p.v[0][0]}</small>`}
+ ${p.s.length>1?`<div class="row2">${p.s.map(z=>`<button class="opt" aria-pressed="false" onclick="pick(${p.id},'z','${z}',this)">${z}</button>`).join("")}</div>`:""}
+ <button class="add" onclick="add(${p.id})">В корзину</button></div></article>`).join("");
+}
+function pick(id,k,v,btn){
+ const p=P.find(x=>x.id===id),card=$("c"+id);sel[id][k]=v;
+ btn.parentElement.querySelectorAll(".opt").forEach(b=>b.setAttribute("aria-pressed","false"));btn.setAttribute("aria-pressed","true");
+ if(k==="c")card.querySelector("img").src=img(p,v);
+}
+function add(id){
+ const p=P.find(x=>x.id===id),s=sel[id];
+ if(!s.z){alert("Сначала выберите размер");return}
+ if(!user){pending=id;showReg();return}
+ const col=p.v[s.c][0],f=cart.find(x=>x.id===id&&x.col===col&&x.z===s.z);
+ f?f.q++:cart.push({id,n:p.n,col,z:s.z,p:p.p,q:1});
+ render();$("cart").classList.add("open");
+}
+function render(){
+ const n=cart.reduce((a,b)=>a+b.q,0),t=cart.reduce((a,b)=>a+b.q*b.p,0);
+ $("cnt").textContent=n;$("sum").textContent=fmt(t);$("go").disabled=!n;
+ $("items").innerHTML=cart.length?cart.map((x,i)=>`<div class="row"><div><strong>${x.n}</strong><br><small>${x.col} · размер ${x.z} · ${fmt(x.p)}</small>
+ <div class="qty"><button onclick="qty(${i},-1)" aria-label="Меньше">−</button>${x.q}<button onclick="qty(${i},1)" aria-label="Больше">+</button></div></div><button onclick="cart.splice(${i},1);render()" aria-label="Удалить">✕</button></div>`).join(""):`<p style="color:var(--mute)">Корзина пуста</p>`;
+ save();
+}
+function qty(i,d){cart[i].q+=d;if(cart[i].q<1)cart.splice(i,1);render()}
+$("open").onclick=()=>$("cart").classList.add("open");
+$("close").onclick=()=>$("cart").classList.remove("open");
+
+function fillUser(){
+ $("nm").value=user?user.tg:"";$("ph").value=user?user.ph:"";
+ $("regbtn").textContent=user?user.tg:"Войти";
+}
+function stopPoll(){if(poll){clearInterval(poll);poll=null}}
+function showReg(){
+ stopPoll();$("regfb").textContent="";$("regwait").hidden=true;$("regstart").hidden=false;$("regstart").disabled=false;
+ $("reg").hidden=false;$("regstart").focus();
+}
+function closeReg(){stopPoll();$("reg").hidden=true;pending=null}
+$("regclose").onclick=closeReg;
+
+// Клик по кнопке пользователя (Войти или Открыть Профиль)
+$("regbtn").onclick=()=>{
+ if(!user){showReg();}else{openProfile();}
+};
+
+// Функция открытия Профиля
+async function openProfile(){
+ if(!user) return;
+ $("profTg").textContent = user.tg;
+ $("profPh").textContent = user.ph;
+ $("profileModal").hidden = false;
+ 
+ // Загрузка истории заказов
+ $("ordersList").innerHTML = `<p style="color:var(--mute)">Загрузка заказов…</p>`;
+ try {
+  const r = await fetch("/api/my-orders", {headers: authH()});
+  const data = await r.json();
+  if(data.ok && data.orders && data.orders.length) {
+   $("ordersList").innerHTML = data.orders.map(o => `
+    <div class="order-card">
+     <div class="order-head">
+      <span>Заказ ${o.id}</span>
+      <span class="badge ${o.status==='Доставлен'?'success':'pending'}">${o.status || 'Обрабатывается'}</span>
+     </div>
+     <small style="color:var(--mute)">${o.date || ''}</small>
+     <div>${o.items_text}</div>
+     <strong>${fmt(o.total)}</strong>
+    </div>
+   `).join("");
+  } else {
+   $("ordersList").innerHTML = `<p style="color:var(--mute)">У вас пока нет оформленных заказов.</p>`;
+  }
+ } catch(e) {
+  $("ordersList").innerHTML = `<p style="color:var(--mute)">Не удалось загрузить заказы.</p>`;
+ }
+}
+
+$("profClose").onclick = () => $("profileModal").hidden = true;
+
+// Выход из профиля
+$("logoutBtn").onclick = () => {
+ if(confirm("Выйти из аккаунта "+user.tg+"?")){
+  try{fetch("/api/auth/logout",{method:"POST",headers:authH()})}catch(x){}
+  user=null;saveUser();fillUser();
+  $("profileModal").hidden = true;
+ }
+};
+
+$("regstart").onclick=async()=>{
+ $("regfb").textContent="";$("regstart").disabled=true;
+ let d;
+ try{const r=await fetch("/api/auth/start",{method:"POST"});d=await r.json();if(!d.ok)throw 0}
+ catch(e){$("regfb").textContent="Не удалось начать вход. Попробуйте позже.";$("regstart").disabled=false;return}
+ $("reglink").href=d.url;$("regwait").hidden=false;$("regstart").hidden=true;
+ try{tg&&tg.openTelegramLink?tg.openTelegramLink(d.url):window.open(d.url,"_blank")}catch(e){}
+ const t0=Date.now();
+ poll=setInterval(async()=>{
+  if(Date.now()-t0>600000){stopPoll();showReg();$("regfb").textContent="Время вышло. Нажмите кнопку ещё раз.";return}
+  try{
+   const r=await fetch(`/api/auth/status?code=${encodeURIComponent(d.code)}&secret=${encodeURIComponent(d.secret)}`);
+   const s=await r.json();
+   if(s.status==="done"){
+    stopPoll();user={tg:s.tg,ph:s.phone,session:s.session};saveUser();fillUser();$("reg").hidden=true;
+    if(pending!==null){const id=pending;pending=null;add(id)}
+   }else if(s.status==="expired"){stopPoll();showReg();$("regfb").textContent="Ссылка устарела. Нажмите кнопку ещё раз."}
+  }catch(e){}
+ },2000);
+};
+
+async function checkSession(){
+ if(!user)return;
+ try{const r=await fetch("/api/auth/me",{headers:authH()});if(r.status===401){user=null;saveUser();fillUser()}}catch(e){}
+}
+
+function fallback(msg){
+ const url=`https://t.me/${TG_USER}?text=${encodeURIComponent(msg)}`;
+ try{tg&&tg.openTelegramLink?tg.openTelegramLink(url):window.open(url,"_blank")}catch(x){}
+ $("fb").innerHTML=`<p style="margin:6px 0;font-size:14px;color:var(--mute)">Не удалось отправить автоматически. Скопируйте заказ и отправьте на @${TG_USER}.</p><textarea id="ot" readonly rows="6"></textarea>`;
+ $("ot").value=msg;
+}
+$("f").onsubmit=async e=>{
+ e.preventDefault();if(!cart.length)return;
+ if(!user){showReg();return}
+ const t=cart.reduce((a,b)=>a+b.q*b.p,0);
+ const msg="Заказ VELORI SHOP\n"+cart.map(x=>`• ${x.n}, ${x.col}, размер ${x.z} × ${x.q} = ${fmt(x.p*x.q)}`).join("\n")+`\nИтого: ${fmt(t)}\nTelegram: ${user.tg}\nТелефон: ${user.ph}`;
+ $("go").disabled=true;
+ try{
+  const r=await fetch("/api/order",{method:"POST",headers:{"Content-Type":"application/json",...authH()},body:JSON.stringify({items:cart.map(x=>({id:x.id,col:x.col,z:x.z,q:x.q}))})});
+  if(r.status===401){user=null;saveUser();fillUser();$("cart").classList.remove("open");showReg();$("regfb").textContent="Сессия закончилась. Подтвердите аккаунт ещё раз.";$("go").disabled=false;return}
+  const d=await r.json();
+  if(!d.ok)throw new Error("fail");
+  cart=[];render();
+  $("fb").innerHTML=`<p style="margin:8px 0;font-weight:600">Заказ ${d.id} отправлен. Мы свяжемся с вами в Telegram.</p>`;
+ }catch(x){fallback(msg);$("go").disabled=false}
+};
+
+fillUser();chips();grid();render();checkSession();
+</script>
+</body>
+</html>
